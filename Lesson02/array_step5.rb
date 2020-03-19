@@ -1,7 +1,3 @@
+# включая 100. Если не включая 100, то (10...100)
 my_array = []
-i = 10
-loop do
-  my_array << i
-  break if i == 100
-  i += 5
-end
+(10..100).step(5) { |x| my_array << x }
