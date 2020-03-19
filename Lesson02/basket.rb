@@ -1,16 +1,14 @@
 basket = {}
-purchase = {}
 amount = 0
 loop do
   puts "Название товара: "
   name = gets.chomp
   break if name == 'стоп'
   puts "Цена за единицу: "
-  purchase[:price] = gets.chomp.to_f
+  price = gets.chomp.to_f
   puts "Количество: "
-  purchase[:quantity] = gets.chomp.to_f
-  basket[name] = purchase
-  purchase = {}
+  quantity = gets.chomp.to_f
+  basket[name] = {price: price, quantity: quantity}
 end
 puts basket
 basket.each do |name, value|

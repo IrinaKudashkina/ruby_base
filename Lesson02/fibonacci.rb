@@ -1,6 +1,6 @@
 fibonacci = [1, 1]
-while fibonacci[-1] + fibonacci[-2]  < 100
-  fibonacci << fibonacci[-1] + fibonacci[-2]
+while (next_number = fibonacci[-1] + fibonacci[-2])  < 100
+  fibonacci << next_number
 end
-puts fibonacci
+
 
