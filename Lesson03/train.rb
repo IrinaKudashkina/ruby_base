@@ -2,25 +2,35 @@ TRAIN_TYPES = ["грузовой", "пассажирский"]
 
 class Train
   attr_reader :number, :type
-  attr_accessor :cars_count, :speed, :route, :station
+  attr_accessor :cars, :speed, :route, :station
+  @@trains = []
 
-  def initialize(number, type, cars_count, speed = 0)
-    @number = number
+  def self.all
+    @@trains
+  end
+
+  def initialize(number, type, speed = 0)
+    @number = number.to_s
     @type = type
-    @cars_count = cars_count
+    @cars = []
     @speed = speed
+    @@trains << self
   end
 
   def stop
     self.speed = 0
   end
 
-  def attach_car
-    self.cars_count += 1 if self.speed == 0
+  def attach_car(car)
+    self.cars << car if self.speed == 0 && car.type == self.type
   end
 
-  def detach_car
-    self.cars_count -= 1 if self.speed == 0 && self.cars_count >= 1
+  def detach_car(car)
+    self.cars.delete(car) if self.speed == 0 && cars_count >= 1
+  end
+
+  def cars_count
+    self.cars.length
   end
 
   def set_route(route)
@@ -31,18 +41,6 @@ class Train
 
   def stations_list
     self.route.stations_list
-  end
-
-  def station_index
-    self.stations_list.find_index(self.station)
-  end
-
-  def first_station?
-    self.station == self.route.departure
-  end
-
-  def last_station?
-    self.station == self.route.terminal
   end
 
   def previous_station
@@ -58,7 +56,7 @@ class Train
       self.station.send_train(self)
       self.station = self.next_station
       self.station.take_train(self)
-      puts "чу-чух чу-чух #{self.station.name}"
+      puts "Поезд прибыл на станцию '#{self.station.name}'"
       self.station
     end
   end
@@ -68,7 +66,23 @@ class Train
       self.station.send_train(self)
       self.station = self.previous_station
       self.station.take_train(self)
+      puts "Поезд прибыл на станцию '#{self.station.name}'"
       self.station
     end
+  end
+
+  protected
+# вспомогательные методы, которые используются только внутри этого класса и его потомков
+
+  def station_index
+    self.stations_list.find_index(self.station)
+  end
+
+  def first_station?
+    self.station == self.route.departure if self.route
+  end
+
+  def last_station?
+    self.station == self.route.terminal if self.route
   end
 end
