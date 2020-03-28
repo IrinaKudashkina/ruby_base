@@ -75,14 +75,14 @@ class Train
 # вспомогательные методы, которые используются только внутри этого класса и его потомков
 
   def station_index
-    self.stations_list.find_index(self.station)
+    stations_list.find_index(station)
   end
 
   def first_station?
-    self.station == self.route.departure if self.route
+    station == route.departure if route
   end
 
   def last_station?
-    self.station == self.route.terminal if self.route
+    station == route.terminal if route
   end
 end

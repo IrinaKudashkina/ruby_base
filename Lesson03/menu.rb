@@ -348,10 +348,10 @@ class Menu
   end
 
   def check_choice(number, limit, menu_cancel, menu_limit = menu_cancel)
-    self.public_send(menu_cancel) if number == 0
+    send(menu_cancel) if number == 0
     if number > limit
       no_number
-      self.public_send(menu_limit)
+      send(menu_limit)
     end
   end
 
