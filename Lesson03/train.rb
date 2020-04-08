@@ -1,6 +1,12 @@
+require_relative 'manufacturer'
+require_relative 'instance_counter'
+
 TRAIN_TYPES = ["грузовой", "пассажирский"]
 
 class Train
+  include Manufacturer
+  include InstanceCounter
+
   attr_reader :number, :type
   attr_accessor :cars, :speed, :route, :station
   @@trains = []
@@ -9,12 +15,17 @@ class Train
     @@trains
   end
 
+  def self.find(number)
+    @@trains.filter { |train| train.number == number }.first
+  end
+
   def initialize(number, type, speed = 0)
     @number = number.to_s
     @type = type
     @cars = []
     @speed = speed
     @@trains << self
+    register_instance
   end
 
   def stop

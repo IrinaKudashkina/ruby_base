@@ -7,5 +7,7 @@ require_relative 'car'
 require_relative 'passenger_car'
 require_relative 'cargo_car'
 require_relative 'menu'
+require_relative 'manufacturer'
+require_relative 'instance_counter'
 
 Menu.new.main

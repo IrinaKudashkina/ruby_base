@@ -1,6 +1,10 @@
+require_relative 'manufacturer'
+
 CAR_TYPES = ["грузовой", "пассажирский"]
 
 class Car
+  include Manufacturer
+
   attr_reader :number, :type
   @@cars = []
 

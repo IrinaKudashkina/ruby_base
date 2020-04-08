@@ -1,4 +1,8 @@
+require_relative 'instance_counter'
+
 class Route
+  include InstanceCounter
+
   attr_reader :departure, :terminal
   attr_accessor :intermediates
   @@routes = []
@@ -12,6 +16,7 @@ class Route
     @terminal = terminal
     @intermediates = intermediates || []
     @@routes << self
+    register_instance
   end
 
   def add_station(station)

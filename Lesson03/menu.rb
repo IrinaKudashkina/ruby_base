@@ -10,7 +10,7 @@ class Menu
   end
 
   def main
-    puts "Создание - 1  Внесение изменений - 2  Просмотр списков - 3"
+    puts "Создание - 1  Внесение изменений - 2  Просмотр списков - 3  Информация - 4"
     puts "[Завершить работу с программой - 0]"
     user_choice = gets.chomp.to_i
     case user_choice
@@ -20,10 +20,12 @@ class Menu
       modification
     when 3
       lists
+    when 4
+      information
     when 0
       puts "Спасибо за работу с программой!"
     else
-      puts "Введите цифру от 0 до 3"
+      puts "Введите цифру от 0 до 4"
       main
     end
   end
@@ -100,6 +102,33 @@ class Menu
     end
   end
 
+  def information
+    puts "Информация: Найти поезд по номеру - 1  Количество поездов по видам - 2"
+    cancel_choice
+    user_choice = gets.chomp.to_i
+    case user_choice
+    when 1
+      puts "Введите номер поезда"
+      number_choice = gets.chomp.to_s
+      puts Train.find(number_choice).inspect
+      train = Train.find(number_choice)
+      puts "Поезд номер '#{train.number}': тип '#{train.type}', компания-производитель '#{train.manufacturer}'."
+      information
+    when 2
+      passenger_trains = PassengerTrain.instances
+      cargo_trains = CargoTrain.instances
+      puts "Поездов пассажирских: #{passenger_trains}"
+      puts "Поездов грузовых: #{cargo_trains}"
+      puts "Всего поездов: #{passenger_trains + cargo_trains}"
+      information
+    when 0
+      main
+    else
+      puts "Введите цифру от 0 до 2"
+      lists
+    end
+  end
+
   def creation_station
     puts "Введите имя станции"
     name = gets.chomp
@@ -135,15 +164,15 @@ class Menu
   end
 
   def creation_train
-    type, number = creation_transport('поезд')
+    type, number, manufacturer = creation_transport('поезд')
     case type
     when 1
-      CargoTrain.new(number)
-      puts "Грузовой поезд c номером '#{number}' создан!"
+      CargoTrain.new(number).manufacturer = manufacturer
+      puts "Грузовой поезд c номером '#{number}' создан! Компания-производитель: '#{manufacturer}'"
       creation
     when 2
-      PassengerTrain.new(number)
-      puts "Пассажирский поезд c номером '#{number}' создан!"
+      PassengerTrain.new(number).manufacturer = manufacturer
+      puts "Пассажирский поезд c номером '#{number}' создан! Компания-производитель: '#{manufacturer}'"
       creation
     else
       creation_train
@@ -151,15 +180,15 @@ class Menu
   end
 
   def creation_car
-    type, number = creation_transport('вагон')
+    type, number, manufacturer = creation_transport('вагон')
     case type
     when 1
-      CargoCar.new(number)
-      puts "Грузовой вагон c номером '#{number}' создан!"
+      CargoCar.new(number).manufacturer = manufacturer
+      puts "Грузовой вагон c номером '#{number}' создан! Компания-производитель: '#{manufacturer}'"
       creation
     when 2
-      PassengerCar.new(number)
-      puts "Пассажирский вагон c номером '#{number}' создан!"
+      PassengerCar.new(number).manufacturer = manufacturer
+      puts "Пассажирский вагон c номером '#{number}' создан! Компания-производитель: '#{manufacturer}'"
       creation
     else
       creation_car
@@ -173,7 +202,9 @@ class Menu
     check_choice(type, 2, :creation)
     puts "Введите номер #{transport}а"
     number = gets.chomp.to_s
-    [type, number]
+    puts "Введите название компании-производителя #{transport}а"
+    manufacturer = gets.chomp.to_s
+    [type, number, manufacturer]
   end
 
   def route_modification
@@ -241,7 +272,7 @@ class Menu
       puts "Тип поезда #{train.type}"
       car = the_car(train.type)
       train.attach_car(car)
-      puts "К поезду '#{train.number}' прицеплен вагон '#{car.number}'!"
+      puts "К поезду '#{train.number}' прицеплен вагон '#{car.number}' производства компании '#{car.manufacturer}'!"
       train_cars(train)
       modification
     when 5
@@ -371,9 +402,9 @@ class Menu
 
   def train_cars(train)
     if train.cars.length == 0
-      puts "У поезда '#{train.number}' нет вагонов"
+      puts "У поезда '#{train.number}' производства компании '#{train.manufacturer}' нет вагонов"
     else
-      puts "Поезд '#{train.number}'. Вагоны поезда:"
+      puts "Поезд '#{train.number}' производства компании '#{train.manufacturer}'. Вагоны поезда:"
       train.cars.each { |car| puts car.number }
     end
   end
