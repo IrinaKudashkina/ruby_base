@@ -8,7 +8,7 @@ class CargoTrain < Train
     @type = TRAIN_TYPES[0]
     @cars = []
     @speed = speed
-    @@trains << self
+    @@trains[number] = self
     register_instance
   end
 end
