@@ -1,5 +1,7 @@
 require_relative 'instance_counter'
 
+NAME_FORMAT = /^\p{L}+(\p{L}|\d|-| )*$/
+
 class Station
   include InstanceCounter
 
@@ -12,10 +14,18 @@ class Station
   end
 
   def initialize(name)
-    @name = name
+    @name = name.to_s.capitalize
     @trains = []
+    validate!
     @@stations << self
     register_instance
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
   end
 
   def take_train(train)
@@ -36,5 +46,12 @@ class Station
 
   def trains_count(type = 0)
     trains_list(type).length
+  end
+
+  private
+  def validate!
+    raise "Невозможно создать станцию: не указано название станции!" if name.nil?
+    raise "Невозможно создать станцию: слишком длинное название!" if name.length > 30
+    raise "Невозможно создать станцию: неправильный формат названия!" if name !~ NAME_FORMAT
   end
 end

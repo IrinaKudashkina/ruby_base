@@ -7,7 +7,8 @@ class PassengerTrain < Train
     @number = number.to_s
     @type = TRAIN_TYPES[1]
     @cars = []
-    @speed = speed
+    @speed = speed.to_f
+    validate!
     @@trains[number] = self
     register_instance
   end

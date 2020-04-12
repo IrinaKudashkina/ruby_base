@@ -110,7 +110,6 @@ class Menu
     when 1
       puts "Введите номер поезда"
       number_choice = gets.chomp.to_s
-      puts Train.find(number_choice).inspect
       train = Train.find(number_choice)
       puts "Поезд номер '#{train.number}': тип '#{train.type}', компания-производитель '#{train.manufacturer}'."
       information
@@ -130,11 +129,15 @@ class Menu
   end
 
   def creation_station
-    puts "Введите имя станции"
+    puts "Введите название станции"
+    puts "[Название должно начинаться с буквы и может содержать в себе буквы, цифры, дефисы и пробелы]"
     name = gets.chomp
     Station.new(name)
     puts "Станция '#{name}' создана!"
     creation
+  rescue RuntimeError => e
+    puts e.message
+    creation_station
   end
 
   def creation_route
@@ -177,6 +180,9 @@ class Menu
     else
       creation_train
     end
+  rescue RuntimeError => e
+    puts e.message
+    creation_transport('поезд')
   end
 
   def creation_car
@@ -193,6 +199,9 @@ class Menu
     else
       creation_car
     end
+  rescue RuntimeError => e
+    puts e.message
+    creation_transport('вагон')
   end
 
   def creation_transport(transport)
@@ -201,6 +210,11 @@ class Menu
     type = gets.chomp.to_i
     check_choice(type, 2, :creation)
     puts "Введите номер #{transport}а"
+    if transport == 'поезд'
+      puts "[Номер должен включать 5 букв или цифр, допустимые форматы XXX-XX или XXXXX]"
+    else
+      puts "Номер должен включать в себя только буквы и цифры, от 5 до 10 символов"
+    end
     number = gets.chomp.to_s
     puts "Введите название компании-производителя #{transport}а"
     manufacturer = gets.chomp.to_s

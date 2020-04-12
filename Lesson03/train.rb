@@ -2,6 +2,7 @@ require_relative 'manufacturer'
 require_relative 'instance_counter'
 
 TRAIN_TYPES = ["грузовой", "пассажирский"]
+TRAIN_NUMBER = /^(\p{L}|\d){3}-?(\p{L}|\d){2}$/
 
 class Train
   include Manufacturer
@@ -23,9 +24,17 @@ class Train
     @number = number.to_s
     @type = type
     @cars = []
-    @speed = speed
+    @speed = speed.to_f
+    validate!
     @@trains[number] = self
     register_instance
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
   end
 
   def stop
@@ -84,6 +93,13 @@ class Train
 
   protected
 # вспомогательные методы, которые используются только внутри этого класса и его потомков
+
+  def validate!
+    raise "Невозможно создать поезд: не указан номер поезда!" if number.nil?
+    raise "Невозможно создать поезд: не указан тип поезда!" if type.nil?
+    raise "Невозможно создать поезд: неправильный формат номера поезда!" if number !~ TRAIN_NUMBER
+    raise "Невозможно создать поезд: неправильный тип поезда!" unless TRAIN_TYPES.include?(type)
+  end
 
   def station_index
     stations_list.find_index(station)
