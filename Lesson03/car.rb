@@ -1,10 +1,12 @@
 require_relative 'manufacturer'
+require_relative 'validity'
 
 CAR_TYPES = ["грузовой", "пассажирский"]
 CAR_NUMBER = /^(\p{L}|\d){5,10}$/
 
 class Car
   include Manufacturer
+  include Validity
 
   attr_reader :number, :type
   @@cars = []
@@ -18,13 +20,6 @@ class Car
     @type = type
     validate!
     @@cars << self
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def self.cargo_car_list

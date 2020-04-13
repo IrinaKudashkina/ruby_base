@@ -1,9 +1,11 @@
 require_relative 'instance_counter'
+require_relative 'validity'
 
 NAME_FORMAT = /^\p{L}+(\p{L}|\d|-| )*$/
 
 class Station
   include InstanceCounter
+  include Validity
 
   attr_reader :name
   attr_accessor :trains
@@ -19,13 +21,6 @@ class Station
     validate!
     @@stations << self
     register_instance
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def take_train(train)

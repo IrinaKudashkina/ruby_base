@@ -1,5 +1,6 @@
 require_relative 'manufacturer'
 require_relative 'instance_counter'
+require_relative 'validity'
 
 TRAIN_TYPES = ["грузовой", "пассажирский"]
 TRAIN_NUMBER = /^(\p{L}|\d){3}-?(\p{L}|\d){2}$/
@@ -7,6 +8,7 @@ TRAIN_NUMBER = /^(\p{L}|\d){3}-?(\p{L}|\d){2}$/
 class Train
   include Manufacturer
   include InstanceCounter
+  include Validity
 
   attr_reader :number, :type
   attr_accessor :cars, :speed, :route, :station
@@ -28,13 +30,6 @@ class Train
     validate!
     @@trains[number] = self
     register_instance
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def stop

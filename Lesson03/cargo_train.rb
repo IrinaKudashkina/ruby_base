@@ -1,7 +1,10 @@
+require_relative 'train'
 require_relative 'instance_counter'
+require_relative 'validity'
 
 class CargoTrain < Train
   include InstanceCounter
+  include Validity
 
   def initialize(number, speed = 0)
     @number = number.to_s

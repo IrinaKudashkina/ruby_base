@@ -1,8 +1,10 @@
 require_relative 'instance_counter'
 require_relative 'station'
+require_relative 'validity'
 
 class Route
   include InstanceCounter
+  include Validity
 
   attr_reader :departure, :terminal
   attr_accessor :intermediates
@@ -19,13 +21,6 @@ class Route
     validate!
     @@routes << self
     register_instance
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def add_station(station)
