@@ -86,6 +86,10 @@ class Train
     end
   end
 
+  def cars_do
+    self.cars.each { |car| yield car }
+  end
+
   protected
 # вспомогательные методы, которые используются только внутри этого класса и его потомков
 

@@ -9,5 +9,6 @@ require_relative 'cargo_car'
 require_relative 'menu'
 require_relative 'manufacturer'
 require_relative 'instance_counter'
+require_relative 'validity'
 
 Menu.new.main

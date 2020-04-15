@@ -43,6 +43,10 @@ class Station
     trains_list(type).length
   end
 
+  def trains_do
+    self.trains.each { |train| yield train }
+  end
+
   private
   def validate!
     raise "Невозможно создать станцию: не указано название станции!" if name.nil?

@@ -56,7 +56,7 @@ class Menu
   end
 
   def modification
-    puts "Изменить:  Маршрут - 1  Поезд - 2"
+    puts "Изменить:  Маршрут - 1  Поезд - 2  Вагон - 3"
     cancel_choice
     user_choice = gets.chomp.to_i
     case user_choice
@@ -64,23 +64,28 @@ class Menu
       route_modification
     when 2
       train_modification
+    when 3
+      car_modification
     when 0
       main
     else
-      puts "Введите цифру от 0 до 2"
+      puts "Введите цифру от 0 до 3"
       modification
     end
   end
 
   def lists
-    puts "Список станций - 1  Список поездов на станции - 2"
+    puts "Список всех станций - 1  Список поездов на станции - 2"
     puts  "Список станций маршрута - 3  Список вагонов поезда - 4"
     cancel_choice
     user_choice = gets.chomp.to_i
     case user_choice
     when 1
       puts "Все станции железной дороги:"
-      Station.all.each { |station| puts "#{station.name}" }
+      Station.all.each.with_index(1) do |station, index|
+        puts "#{index}. Станция '#{station.name}'"
+        station_trains(station)
+      end
       lists
     when 2
       station = the_station
@@ -189,11 +194,15 @@ class Menu
     type, number, manufacturer = creation_transport('вагон')
     case type
     when 1
-      CargoCar.new(number).manufacturer = manufacturer
+      puts "Введите объем грузового вагона (в куб.м.)"
+      volume = gets.chomp
+      CargoCar.new(number, volume).manufacturer = manufacturer
       puts "Грузовой вагон c номером '#{number}' создан! Компания-производитель: '#{manufacturer}'"
       creation
     when 2
-      PassengerCar.new(number).manufacturer = manufacturer
+      puts "Введите количество мест в пассажирском вагоне"
+      seats = gets.chomp
+      PassengerCar.new(number, seats).manufacturer = manufacturer
       puts "Пассажирский вагон c номером '#{number}' создан! Компания-производитель: '#{manufacturer}'"
       creation
     else
@@ -309,6 +318,60 @@ class Menu
     end
   end
 
+  def car_modification
+    car = the_car
+    if car.type == CAR_TYPES[1]
+      puts "Занять место - 1  Освободить место - 2"
+      cancel_choice
+      user_choice = gets.chomp.to_i
+      case user_choice
+      when 1
+        car.load
+        puts "Место занято!"
+        car_seats(car)
+        car_modification
+      when 2
+        car.unload
+        puts "Место освобождено!"
+        car_seats(car)
+        car_modification
+      when 0
+        modification
+      else
+        puts "Введите цифру от 0 до 2"
+        car_modification
+      end
+    else
+      puts "Загрузить вагон - 1  Разгрузить вагон - 2"
+      cancel_choice
+      user_choice = gets.chomp.to_i
+      case user_choice
+      when 1
+        puts "Введите объем груза для загрузки (в куб.м.)"
+        volume = gets.chomp.to_f
+        car.load(volume)
+        puts "Загружено #{volume} куб.м.!"
+        car_volume(car)
+        car_modification
+      when 2
+        puts "Введите объем груза для разрузки (в куб.м.)"
+        volume = gets.chomp.to_f
+        car.unload(volume)
+        puts "Выгружено #{volume} куб.м.!"
+        car_volume(car)
+        car_modification
+      when 0
+        modification
+      else
+        puts "Введите цифру от 0 до 2"
+        car_modification
+      end
+    end
+  rescue RuntimeError => e
+    puts e.message
+    car_modification
+  end
+
   def the_station
     puts "Выберите станцию:"
     station_choice
@@ -410,7 +473,9 @@ class Menu
       puts "На станции #{station.name}' нет поездов"
     else
       puts "На станции #{station.name}' находятся поезда:"
-      station.trains.each { |train| puts train.number }
+      station.trains_do do |train|
+        puts "   Поезд номер '#{train.number}', тип '#{train.type}', количество вагонов: #{train.cars_count}"
+      end
     end
   end
 
@@ -419,8 +484,29 @@ class Menu
       puts "У поезда '#{train.number}' производства компании '#{train.manufacturer}' нет вагонов"
     else
       puts "Поезд '#{train.number}' производства компании '#{train.manufacturer}'. Вагоны поезда:"
-      train.cars.each { |car| puts car.number }
+      if train.type == TRAIN_TYPES[0]
+        train.cars_do do |car|
+          puts "   Вагон номер '#{car.number}', тип '#{car.type}', "\
+               "свободно #{car.available_volume} куб.м., занято #{car.occupied_volume} куб.м."
+        end
+      else
+        train.cars_do do |car|
+          puts "Вагон номер '#{car.number}', тип '#{car.type}', "\
+               "свободно мест: #{car.available_seats}, занято мест: #{car.occupied_seats}"
+        end
+      end
     end
+  end
+
+  def car_seats(car)
+    puts "В пассажирском вагоне номер '#{car.number}' занято мест: #{car.occupied_seats}, "\
+         " свободно мест: #{car.available_seats}"
+  end
+
+
+  def car_volume(car)
+    puts "В грузовом вагоне номер '#{car.number}' занято #{car.occupied_volume} куб.м., "\
+         "свободно #{car.available_volume} куб.м."
   end
 
   def no_number
