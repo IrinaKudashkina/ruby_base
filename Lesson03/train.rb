@@ -1,32 +1,36 @@
-require_relative 'manufacturer'
-require_relative 'instance_counter'
-require_relative 'validity'
-
-TRAIN_TYPES = ["грузовой", "пассажирский"]
-TRAIN_NUMBER = /^(\p{L}|\d){3}-?(\p{L}|\d){2}$/
+require_relative "manufacturer"
+require_relative "instance_counter"
+require_relative "validity"
 
 class Train
   include Manufacturer
   include InstanceCounter
   include Validity
 
+  TRAIN_TYPES = %w[грузовой пассажирский].freeze
+  TRAIN_NUMBER = /^(\p{L}|\d){3}-?(\p{L}|\d){2}$/.freeze
+
   attr_reader :number, :type
   attr_accessor :cars, :speed, :route, :station
   @@trains = {}
 
-  def self.all
-    @@trains.values
+  class << self
+    def all
+      @@trains.values
+    end
+
+    def find(number)
+      raise "Нет поезда с таким номером!" if @@trains[number].nil?
+
+      @@trains[number]
+    end
   end
 
-  def self.find(number)
-    @@trains[number]
-  end
-
-  def initialize(number, type, speed = 0)
+  def initialize(number, type, options = {})
     @number = number.to_s
     @type = type
-    @cars = []
-    @speed = speed.to_f
+    @speed = (options[:speed] || 0).to_f
+    @cars = options[:cars] || []
     validate!
     @@trains[number] = self
     register_instance
@@ -37,61 +41,60 @@ class Train
   end
 
   def attach_car(car)
-    self.cars << car if self.speed == 0 && car.type == self.type
+    cars << car if speed.zero? && car.type == type
   end
 
   def detach_car(car)
-    self.cars.delete(car) if self.speed == 0 && cars_count >= 1
+    cars.delete(car) if speed.zero? && cars_count >= 1
   end
 
   def cars_count
-    self.cars.length
+    cars.length
   end
 
-  def set_route(route)
+  def assign_route(route)
     self.route = route
     self.station = route.departure
     route.departure.take_train(self)
   end
 
   def stations_list
-    self.route.stations_list
+    route.stations_list
   end
 
   def previous_station
-    self.stations_list[self.station_index - 1] unless first_station?
+    stations_list[station_index - 1] unless first_station?
   end
 
   def next_station
-    self.stations_list[self.station_index + 1] unless last_station?
+    stations_list[station_index + 1] unless last_station?
   end
 
   def forward
-    unless last_station?
-      self.station.send_train(self)
-      self.station = self.next_station
-      self.station.take_train(self)
-      puts "Поезд прибыл на станцию '#{self.station.name}'"
-      self.station
-    end
+    return if last_station?
+
+    station.send_train(self)
+    self.station = next_station
+    station.take_train(self)
+    puts "Поезд прибыл на станцию '#{station.name}'"
+    station
   end
 
   def backward
-    unless first_station?
-      self.station.send_train(self)
-      self.station = self.previous_station
-      self.station.take_train(self)
-      puts "Поезд прибыл на станцию '#{self.station.name}'"
-      self.station
-    end
+    return if first_station?
+
+    station.send_train(self)
+    self.station = previous_station
+    station.take_train(self)
+    puts "Поезд прибыл на станцию '#{station.name}'"
+    station
   end
 
   def cars_do
-    self.cars.each { |car| yield car }
+    cars.each { |car| yield car }
   end
 
   protected
-# вспомогательные методы, которые используются только внутри этого класса и его потомков
 
   def validate!
     raise "Невозможно создать поезд: не указан номер поезда!" if number.nil?

@@ -1,18 +1,28 @@
-require_relative 'manufacturer'
-require_relative 'validity'
-
-CAR_TYPES = ["грузовой", "пассажирский"]
-CAR_NUMBER = /^(\p{L}|\d){5,10}$/
+require_relative "manufacturer"
+require_relative "validity"
 
 class Car
   include Manufacturer
   include Validity
 
+  CAR_TYPES = %w[грузовой пассажирский].freeze
+  CAR_NUMBER = /^(\p{L}|\d){5,10}$/.freeze
+
   attr_reader :number, :type
   @@cars = []
 
-  def self.all
-    @@cars
+  class << self
+    def all
+      @@cars
+    end
+
+    def cargo_car_list
+      @@cars.select { |car| car.type == CAR_TYPES[0] }
+    end
+
+    def passenger_car_list
+      @@cars.select { |car| car.type == CAR_TYPES[1] }
+    end
   end
 
   def initialize(number, type)
@@ -20,14 +30,6 @@ class Car
     @type = type
     validate!
     @@cars << self
-  end
-
-  def self.cargo_car_list
-    @@cars.select { |car| car.type == CAR_TYPES[0] }
-  end
-
-  def self.passenger_car_list
-    @@cars.select { |car| car.type == CAR_TYPES[1] }
   end
 
   protected

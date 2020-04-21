@@ -1,16 +1,16 @@
-require_relative 'train'
-require_relative 'instance_counter'
-require_relative 'validity'
+require_relative "train"
+require_relative "instance_counter"
+require_relative "validity"
 
 class CargoTrain < Train
   include InstanceCounter
   include Validity
 
-  def initialize(number, speed = 0)
+  def initialize(number, options = {})
     @number = number.to_s
     @type = TRAIN_TYPES[0]
-    @cars = []
-    @speed = speed.to_f
+    @speed = (options[:speed] || 0).to_f
+    @cars = options[:cars] || []
     validate!
     @@trains[number] = self
     register_instance

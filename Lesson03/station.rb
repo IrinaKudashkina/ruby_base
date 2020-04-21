@@ -1,11 +1,11 @@
-require_relative 'instance_counter'
-require_relative 'validity'
-
-NAME_FORMAT = /^\p{L}+(\p{L}|\d|-| )*$/
+require_relative "instance_counter"
+require_relative "validity"
 
 class Station
   include InstanceCounter
   include Validity
+
+  NAME_FORMAT = /^\p{L}+(\p{L}|\d|-| )*$/.freeze
 
   attr_reader :name
   attr_accessor :trains
@@ -15,27 +15,27 @@ class Station
     @@stations
   end
 
-  def initialize(name)
+  def initialize(name, options = {})
     @name = name.to_s.capitalize
-    @trains = []
+    @trains = options[:trains] || []
     validate!
     @@stations << self
     register_instance
   end
 
   def take_train(train)
-    self.trains << train
+    trains << train
   end
 
   def send_train(train)
-    self.trains.delete(train)
+    trains.delete(train)
   end
 
   def trains_list(type = nil)
     if type
-      self.trains.select { |train| train.type == type }
+      trains.select { |train| train.type == type }
     else
-      self.trains
+      trains
     end
   end
 
@@ -44,10 +44,11 @@ class Station
   end
 
   def trains_do
-    self.trains.each { |train| yield train }
+    trains.each { |train| yield train }
   end
 
   private
+
   def validate!
     raise "Невозможно создать станцию: не указано название станции!" if name.nil?
     raise "Невозможно создать станцию: слишком длинное название!" if name.length > 30

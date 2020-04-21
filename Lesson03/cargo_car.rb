@@ -1,27 +1,29 @@
-require_relative 'car'
-require_relative 'validity'
+require_relative "car"
+require_relative "validity"
 
 class CargoCar < Car
   include Validity
 
   attr_reader :volume, :occupied_volume
 
-  def initialize(number, volume)
+  def initialize(number, volume, options = {})
     @number = number.to_s
     @type = CAR_TYPES[0]
     @volume = volume.to_f
-    @occupied_volume = 0
+    @occupied_volume = (options[:occupied_volume] || 0).to_f
     validate!
     @@cars << self
   end
 
   def load(cargo_volume)
     raise "Недостаточно свободного объема для загрузки!" if occupied_volume + cargo_volume > volume
+
     self.occupied_volume += cargo_volume
   end
 
   def unload(cargo_volume)
     raise "Введенный объем груза больше доступного к выгрузке!" if cargo_volume > occupied_volume
+
     self.occupied_volume -= cargo_volume
   end
 
