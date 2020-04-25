@@ -1,16 +1,23 @@
 require_relative "car"
-require_relative "validity"
+require_relative "validation"
+require_relative "accessors"
 
 class CargoCar < Car
-  include Validity
+  include Validation
 
   attr_reader :volume, :occupied_volume
+
+  validate :number, :presence
+  validate :number, :format, CAR_NUMBER
+  validate :volume, :type, Float
 
   def initialize(number, volume, options = {})
     @number = number.to_s
     @type = CAR_TYPES[0]
     @volume = volume.to_f
-    @occupied_volume = (options[:occupied_volume] || 0).to_f
+    @occupied_volume = 0
+    @color = options[:color] || "Неизвестно"
+    @date_of_repair = options[:date_of_repair] || "Неизвестно"
     validate!
     @@cars << self
   end

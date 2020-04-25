@@ -1,14 +1,21 @@
 require_relative "instance_counter"
 require_relative "station"
-require_relative "validity"
+require_relative "validation"
+require_relative "accessors"
 
 class Route
+  extend Accessors
   include InstanceCounter
-  include Validity
+  include Validation
 
   attr_reader :departure, :terminal
   attr_accessor :intermediates
+  attr_accessor_with_history :travel_time
+  strong_attr_accessor :acronym_name, String
   @@routes = []
+
+  validate :departure, :type, Station
+  validate :terminal, :type, Station
 
   def self.all
     @@routes
@@ -33,16 +40,5 @@ class Route
 
   def stations_list
     [departure, intermediates, terminal].flatten
-  end
-
-  private
-
-  def validate!
-    message = "Невозможно создать маршрут: станция маршрута не является объектом класса Station!"
-    raise message unless departure.is_a?(Station) && terminal.is_a?(Station)
-
-    return if intermediates.empty?
-
-    intermediates.each { |station| raise message unless station.is_a?(Station) }
   end
 end

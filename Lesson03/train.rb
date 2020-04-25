@@ -1,18 +1,27 @@
 require_relative "manufacturer"
 require_relative "instance_counter"
-require_relative "validity"
+require_relative "validation"
+require_relative "accessors"
 
 class Train
+  extend Accessors
   include Manufacturer
   include InstanceCounter
-  include Validity
+  include Validation
 
   TRAIN_TYPES = %w[грузовой пассажирский].freeze
   TRAIN_NUMBER = /^(\p{L}|\d){3}-?(\p{L}|\d){2}$/.freeze
 
   attr_reader :number, :type
   attr_accessor :cars, :speed, :route, :station
+  attr_accessor_with_history :chief, :date_of_repair
+  strong_attr_accessor :year_of_manufacture, Integer
   @@trains = {}
+
+  validate :number, :presence
+  validate :type, :presence
+  validate :number, :format, TRAIN_NUMBER
+  validate :chief, :type, String
 
   class << self
     def all
@@ -31,6 +40,8 @@ class Train
     @type = type
     @speed = (options[:speed] || 0).to_f
     @cars = options[:cars] || []
+    @chief = options[:chief] || "Неизвестно"
+    @date_of_repair = options[:date_of_repair] || "Неизвестно"
     validate!
     @@trains[number] = self
     register_instance
@@ -95,13 +106,6 @@ class Train
   end
 
   protected
-
-  def validate!
-    raise "Невозможно создать поезд: не указан номер поезда!" if number.nil?
-    raise "Невозможно создать поезд: не указан тип поезда!" if type.nil?
-    raise "Невозможно создать поезд: неправильный формат номера поезда!" if number !~ TRAIN_NUMBER
-    raise "Невозможно создать поезд: неправильный тип поезда!" unless TRAIN_TYPES.include?(type)
-  end
 
   def station_index
     stations_list.find_index(station)

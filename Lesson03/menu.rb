@@ -1,5 +1,5 @@
 class Menu
-  MAIN = { 1 => :creation, 2 => :modification, 3 => :lists, 4 => :information, 0 => :exit }.freeze
+  MAIN = { 1 => :creation, 2 => :modification, 3 => :lists, 4 => :information, 0 => :exit_program }.freeze
   CREATION = {
     1 => :creation_station, 2 => :creation_route,
     3 => :creation_train, 4 => :creation_car, 0 => :main
@@ -551,7 +551,7 @@ class Menu
     puts "Поезду не назначен маршрут!"
   end
 
-  def exit
+  def exit_program
     puts "Спасибо за работу с программой!"
   end
 
